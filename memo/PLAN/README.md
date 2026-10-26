@@ -23,5 +23,10 @@ Undertaleスタイルの対話（ダイアログ）と背景動画を、**Markdo
    - フェーズ別の機能要件とタスク詳細
 
 4. **[04_milestones.md](file:///home/ubuntu/AgentWorkspace/UT_novel/memo/PLAN/04_milestones.md)**
-   - **具体的な開発マイルストーン計画 (M1 〜 M6)**
+   - **開発マイルストーン計画 (M1 〜 M6)**
    - 各マイルストーンごとの作業内容、成果物、完了基準（Definition of Done）
+
+5. **[05_external_tts_brainstorming.md](file:///home/ubuntu/AgentWorkspace/UT_novel/memo/PLAN/05_external_tts_brainstorming.md)**
+   - **外部TTS（Qwen3 TTS等）連携構想 & ブレスト**
+   - 分離アーキテクチャ（GPUマシンでの音声生成とUT_novelの結合）、ファイルインポート/API連携、単語アライメント同期の構想検討
+
