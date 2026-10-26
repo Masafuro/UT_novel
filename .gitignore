@@ -13,6 +13,7 @@ temp/
 tmp/
 *.tmp
 *.log
+.cache/
 
 # ==========================================
 # TTS Models & Large Weights
