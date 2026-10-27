@@ -1,4 +1,4 @@
-"""Test script to render Undertale dialogues overlaid on generated sample backgrounds."""
+"""Test script to render dialogues overlaid on generated sample backgrounds."""
 import os
 import sys
 
@@ -13,31 +13,31 @@ def main():
     renderer = DialogBoxRenderer(config)
     os.makedirs("output", exist_ok=True)
 
-    # 1. Toriel in Ruins
+    # 1. Dev Girl in Ruins
     ruins_bg = Image.open("assets/bg/ruins_hall.jpg").convert("RGBA").resize((1920, 1080))
-    toriel_face = Image.open("assets/char/toriel/smile.jpg").convert("RGBA")
+    girl_face = Image.open("assets/char/dev_girl_1/smile.jpg").convert("RGBA")
     
-    text_toriel = "Hello, my child.\nWelcome to the RUINS."
+    text_girl = "Hello, explorer!\nWelcome to the ancient ruins."
     img1 = renderer.render_frame(
         base_image=ruins_bg,
-        text=text_toriel,
-        portrait_image=toriel_face
+        text=text_girl,
+        portrait_image=girl_face
     )
-    img1.save("output/composite_ruins_toriel.png")
-    print("Saved output/composite_ruins_toriel.png")
+    img1.save("output/composite_ruins_girl.png")
+    print("Saved output/composite_ruins_girl.png")
 
-    # 2. Sans in Snowy Forest
+    # 2. Dev Boy in Snowy Forest
     snow_bg = Image.open("assets/bg/snowy_forest.jpg").convert("RGBA").resize((1920, 1080))
-    sans_face = Image.open("assets/char/sans/grin.jpg").convert("RGBA")
+    boy_face = Image.open("assets/char/dev_boy_1/smile.jpg").convert("RGBA")
     
-    text_sans = "hey.\nyou look like you've been working\ndown to the bone."
+    text_boy = "hey.\nyou look like you've been working\nhard on your code."
     img2 = renderer.render_frame(
         base_image=snow_bg,
-        text=text_sans,
-        portrait_image=sans_face
+        text=text_boy,
+        portrait_image=boy_face
     )
-    img2.save("output/composite_snow_sans.png")
-    print("Saved output/composite_snow_sans.png")
+    img2.save("output/composite_snow_boy.png")
+    print("Saved output/composite_snow_boy.png")
 
 if __name__ == "__main__":
     main()

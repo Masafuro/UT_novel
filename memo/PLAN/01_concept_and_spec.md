@@ -42,29 +42,27 @@ bgm: "assets/bgm/fallen_down.mp3"
 bgm_volume: 0.6
 
 characters:
-  toriel:
-    name: "Toriel"
+  dev_girl_1:
+    name: "Emma"
     font: "determination"
     # 音声設定: "blip" (文字音) または "tts" (音声合成)
     voice_mode: "blip"
-    blip_sound: "assets/se/voice_toriel.wav"
+    blip_sound: "assets/se/voice_high.wav"
     default_face: "smile"
     faces:
-      smile: "assets/char/toriel/smile.png"
-      worried: "assets/char/toriel/worried.png"
+      smile: "assets/char/dev_girl_1/smile.jpg"
   
-  sans:
-    name: "sans"
-    font: "comic_sans"
+  dev_boy_1:
+    name: "Alex"
+    font: "determination"
     voice_mode: "tts"
     tts:
-      provider: "piper" # "piper" (ローカル軽量), "openai", "elevenlabs" 等
-      voice_id: "en_US-lessac-medium"
+      provider: "gtts"
+      voice_id: "us"
       speed: 1.0
-    default_face: "normal"
+    default_face: "smile"
     faces:
-      normal: "assets/char/sans/normal.png"
-      wink: "assets/char/sans/wink.png"
+      smile: "assets/char/dev_boy_1/smile.jpg"
 
   narrator:
     font: "determination"
@@ -74,11 +72,11 @@ characters:
 
 # シーン開始
 
-* toriel(smile): Hello, my child.[wait: 0.3] Welcome to the RUINS.
-* toriel(worried): Do not be afraid, I will guide you through the catacombs.
+* dev_girl_1(smile): Hello, explorer![wait: 0.3] Welcome to the ancient ruins.
+* dev_girl_1(smile): Do not be afraid, we will guide you safely through the passage.
 
 # TTSで喋るキャラクターの例
-* sans(wink): hey. you look like you've been working down to the [shake]bone[/shake].
+* dev_boy_1(smile): hey. you look like you've been working down to the [shake]bone[/shake].
 
 # 直接音声ファイルを指定する場合の例
 * narrator: [voice: "assets/voice/custom_take.wav"] (A strange silence fills the room.)
@@ -91,9 +89,9 @@ characters:
 1. **Word Wrapping (単語単位の自動改行)**
    - 英語は単語の途中で不自然に改行されると可読性が著しく低下します。テキストボックス幅に応じて、スペース区切りの単語単位で次行へ折り返す処理を標準搭載します。
 2. **フォントの切り替え**
-   - `determination` (標準のピクセルフォント: Determination Sans / Mono)
-   - `comic_sans` (Sans用)
-   - `papyrus` (Papyrus用)
+   - `determination` (標準のピクセルフォント: Determination Sans / PixelOperator)
+   - `comic_sans` (カジュアル・コミカルフォント)
+   - `papyrus` (ファンタジー・古代風フォント)
 3. **インライン演出タグ**
    - `[wait: 秒数]` : 文字送りを一時停止（例: `Wait...[wait: 0.6]What?`）
    - `[shake]`...`[/shake]` : 揺れる文字演出

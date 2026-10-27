@@ -94,6 +94,6 @@ gantt
   - `--aspect-ratio`, `--fps`, `--preview-sec` などの引数サポート
 - [x] **英語デモスクリプト & サンプル同梱**
   - すぐに試せるサンプル台本（Voice Blip版、TTS版、Shorts版、リッチ演出版）
-  - デフォルトキャラクター素材（Toriel、Sans）
+  - デフォルトキャラクター素材（dev_boy_1、dev_girl_1）
 - [x] **ドキュメント・README整備**
   - インストール手順、台本の書き方ガイド、CLIオプション説明

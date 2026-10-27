@@ -1,10 +1,10 @@
 """Word wrapping utilities supporting inline rich text tags."""
 from PIL import ImageFont, ImageDraw, Image
-from typing import List
+from typing import List, Union
 from ut_novel.parser.rich_text import RichTextParser, RichChar
 
 class WordWrapper:
-    def __init__(self, font: ImageFont.FreeTypeFont, max_width: int, asterisk_indent: int = 0):
+    def __init__(self, font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont], max_width: int, asterisk_indent: int = 0):
         self.font = font
         self.max_width = max_width
         self.asterisk_indent = asterisk_indent

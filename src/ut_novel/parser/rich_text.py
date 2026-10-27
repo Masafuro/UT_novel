@@ -20,7 +20,10 @@ def parse_color(color_str: str) -> Tuple[int, int, int]:
     if color_str.startswith("#"):
         hex_val = color_str.lstrip("#")
         if len(hex_val) == 6:
-            return tuple(int(hex_val[i:i+2], 16) for i in (0, 2, 4))
+            r = int(hex_val[0:2], 16)
+            g = int(hex_val[2:4], 16)
+            b = int(hex_val[4:6], 16)
+            return (r, g, b)
     return (255, 255, 255)
 
 @dataclass

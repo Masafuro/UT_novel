@@ -1,6 +1,14 @@
-"""Data models and configurations for UT_novel."""
 from dataclasses import dataclass, field
 from typing import Optional, Dict, List, Tuple
+
+@dataclass
+class SplashConfig:
+    """Configuration for a splash screen (intro/outro)."""
+    image: str
+    duration: float = 3.0
+    fade_in: float = 0.5
+    fade_out: float = 0.5
+    transition: str = "fade_black"  # "fade_black" or "cut"
 
 @dataclass
 class DialogBoxConfig:

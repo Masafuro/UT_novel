@@ -41,3 +41,6 @@ class BlipAudioGenerator:
                     track = track.overlay(sample, position=pos_ms)
 
         return track
+
+    # Backward compatibility alias
+    generate_blip_track_for_events = generate_track_from_events

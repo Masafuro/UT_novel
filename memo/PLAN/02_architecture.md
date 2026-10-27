@@ -66,7 +66,7 @@ flowchart TD
   - 音声が鳴っている間（またはタイピング進行中）は口パク用スプライト（または上下微振動）をアニメーション再生。発話終了で静止表情に復帰。
 - **Undertale UIスタイル**:
   - 黒背景＋白の二重枠線ダイアログボックス。
-  - 英語ドットフォント（Determination, Comic Sans等）のレンダリング。
+  - 英語ドットフォント（PixelOperator, Determination等）のレンダリング。
   - `[shake]` (文字の微細なランダム揺れ)、`[color]` (文字色変更) の描画。
 - **背景ビデオ・画像合成**:
   - 背景動画（MP4）をループ再生し、その上にダイアログをアルファ合成。
@@ -82,7 +82,7 @@ flowchart TD
 ```text
 UT_novel/
 ├── assets/                  # デフォルト素材
-│   ├── fonts/               # Determination, Comic Sans等のドットフォント
+│   ├── fonts/               # PixelOperator等のドットフォント
 │   ├── se/                  # Undertale風文字送り音（Voice Blips）、決定音等
 │   └── tts_models/          # Piper等のローカル英語TTSモデル（必要時）
 ├── examples/                # サンプル台本・素材

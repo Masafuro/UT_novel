@@ -4,7 +4,7 @@ from typing import Optional, Tuple, List
 import random
 import os
 from ut_novel.models import DialogBoxConfig
-from ut_novel.parser.rich_text import RichChar
+from ut_novel.parser.rich_text import RichChar, RichTextParser
 
 class DialogBoxRenderer:
     def __init__(self, config: Optional[DialogBoxConfig] = None):
@@ -39,7 +39,8 @@ class DialogBoxRenderer:
         is_speaking: bool = False,
         speaking_tick: int = 0,
         frame_index: int = 0,
-        prefix_asterisk: bool = True
+        prefix_asterisk: bool = True,
+        show_textbox: bool = True
     ) -> Image.Image:
         """Render a frame with rich characters (color, shake) and animated portrait."""
         cfg = self.config
@@ -48,6 +49,9 @@ class DialogBoxRenderer:
             image = Image.new("RGBA", (cfg.screen_width, cfg.screen_height), (0, 0, 0, 255))
         else:
             image = base_image.copy()
+
+        if not show_textbox:
+            return image
 
         draw = ImageDraw.Draw(image)
         
@@ -115,3 +119,24 @@ class DialogBoxRenderer:
                 current_x += int(ch_w)
 
         return image
+
+    def render_frame(
+        self,
+        base_image: Optional[Image.Image] = None,
+        text: str = "",
+        portrait_image: Optional[Image.Image] = None,
+        is_speaking: bool = False,
+        speaking_tick: int = 0,
+        frame_index: int = 0
+    ) -> Image.Image:
+        """Compatibility helper for rendering plain text frames."""
+        rich_chars = RichTextParser.parse(text)
+        return self.render_rich_frame(
+            base_image=base_image,
+            visible_rich_chars=rich_chars,
+            portrait_image=portrait_image,
+            is_speaking=is_speaking,
+            speaking_tick=speaking_tick,
+            frame_index=frame_index,
+            prefix_asterisk=bool(rich_chars)
+        )

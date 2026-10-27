@@ -5,28 +5,28 @@ fps: 30
 bg: "assets/bg/ruins_hall.jpg"
 
 characters:
-  toriel:
-    name: "Toriel"
+  dev_girl_1:
+    name: "Emma"
     voice_mode: "tts"
     tts:
       provider: "gtts"
       voice_id: "uk" # British English accent
     default_face: "smile"
     faces:
-      smile: "assets/char/toriel/smile.jpg"
-  sans:
-    name: "sans"
+      smile: "assets/char/dev_girl_1/smile.jpg"
+  dev_boy_1:
+    name: "Alex"
     voice_mode: "tts"
     tts:
       provider: "gtts"
       voice_id: "us" # American English accent
-    default_face: "grin"
+    default_face: "smile"
     faces:
-      grin: "assets/char/sans/grin.jpg"
+      smile: "assets/char/dev_boy_1/smile.jpg"
 ---
 
 # Dialogue with AI English Voices & Synchronized Lip-sync
 
-* toriel(smile): Welcome, young human. You must be weary from your long journey.
-* sans(grin): hey. don't look so rattled. she makes a killer butterscotch pie.
-* toriel(smile): Please do not listen to him. Let us proceed safely together.
+* dev_girl_1(smile): Welcome, explorer! You must be weary from your long journey.
+* dev_boy_1(smile): hey. take a moment to rest. we have plenty of supplies ready.
+* dev_girl_1(smile): Exactly. Let us stay focused and proceed safely together.

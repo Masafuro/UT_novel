@@ -30,3 +30,7 @@ Undertaleスタイルの対話（ダイアログ）と背景動画を、**Markdo
    - **外部TTS（Qwen3 TTS等）連携構想 & ブレスト**
    - 分離アーキテクチャ（GPUマシンでの音声生成とUT_novelの結合）、ファイルインポート/API連携、単語アライメント同期の構想検討
 
+6. **[06_copyright_character_migration_plan.md](file:///home/ubuntu/AgentWorkspace/UT_novel/memo/PLAN/06_copyright_character_migration_plan.md)**
+   - **著作権準拠キャラクター素材移行計画**
+   - 既存のUndertale素材（sans, toriel）の完全排除、オリジナル1-bitキャラクター（dev_boy_1, dev_girl_1）への統一、台本・ドキュメント・作例コードの刷新ステップ
+

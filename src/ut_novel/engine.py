@@ -91,7 +91,12 @@ class NovelEngine:
         # 4. Build Synchronized Timeline
         print("2. Building synchronized timeline...")
         timeline = AudioDrivenTimeline(fps=fps, default_frames_per_char=2, clear_pause_sec=0.25)
-        frames, audio_events, total_duration = timeline.build_timeline(parsed.lines, line_audio_durations)
+        frames, audio_events, total_duration = timeline.build_timeline(
+            parsed.lines,
+            line_audio_durations,
+            splash_start=parsed.splash_start,
+            splash_end=parsed.splash_end
+        )
 
         # Handle preview truncation if requested
         if preview_seconds and preview_seconds < total_duration:
@@ -132,6 +137,34 @@ class NovelEngine:
         final_audio.export(temp_audio, format="wav")
 
         # 6. Initialize Background
+        def load_scaled_bg(path: str) -> Optional[Image.Image]:
+            if not path or not os.path.exists(path):
+                return None
+            try:
+                raw = Image.open(path).convert("RGBA")
+                scale = max(cfg.screen_width / raw.width, cfg.screen_height / raw.height)
+                scaled_w = int(raw.width * scale)
+                scaled_h = int(raw.height * scale)
+                scaled_bg = raw.resize((scaled_w, scaled_h), Image.Resampling.BICUBIC)
+                crop_x = (scaled_w - cfg.screen_width) // 2
+                crop_y = (scaled_h - cfg.screen_height) // 2
+                return scaled_bg.crop((crop_x, crop_y, crop_x + cfg.screen_width, crop_y + cfg.screen_height))
+            except Exception as e:
+                print(f"Warning: Failed to load background {path}: {e}")
+                return None
+
+        bg_cache: Dict[str, Image.Image] = {}
+        if parsed.splash_start and parsed.splash_start.image:
+            img = load_scaled_bg(parsed.splash_start.image)
+            if img:
+                bg_cache[parsed.splash_start.image] = img
+        if parsed.splash_end and parsed.splash_end.image:
+            img = load_scaled_bg(parsed.splash_end.image)
+            if img:
+                bg_cache[parsed.splash_end.image] = img
+
+        black_frame = Image.new("RGBA", (cfg.screen_width, cfg.screen_height), (0, 0, 0, 255))
+
         is_bg_video = False
         bg_video_reader: Optional[BackgroundVideoReader] = None
         static_bg_image: Optional[Image.Image] = None
@@ -149,18 +182,10 @@ class NovelEngine:
                 )
                 bg_video_reader.start()
             else:
-                # Cover scaling for static background
-                raw_bg = Image.open(parsed.bg_path).convert("RGBA")
-                # Scale to fill screen
-                scale = max(cfg.screen_width / raw_bg.width, cfg.screen_height / raw_bg.height)
-                scaled_w = int(raw_bg.width * scale)
-                scaled_h = int(raw_bg.height * scale)
-                scaled_bg = raw_bg.resize((scaled_w, scaled_h), Image.Resampling.BICUBIC)
-                crop_x = (scaled_w - cfg.screen_width) // 2
-                crop_y = (scaled_h - cfg.screen_height) // 2
-                static_bg_image = scaled_bg.crop((crop_x, crop_y, crop_x + cfg.screen_width, crop_y + cfg.screen_height))
-        else:
-            static_bg_image = Image.new("RGBA", (cfg.screen_width, cfg.screen_height), (0, 0, 0, 255))
+                static_bg_image = load_scaled_bg(parsed.bg_path)
+        
+        if static_bg_image is None:
+            static_bg_image = black_frame
 
         # 7. Video Encoding
         print(f"4. Rendering frames & encoding to {output_path}...")
@@ -175,7 +200,9 @@ class NovelEngine:
 
         try:
             for i, f_state in enumerate(frames):
-                if is_bg_video and bg_video_reader is not None:
+                if f_state.bg_override and f_state.bg_override in bg_cache:
+                    current_bg = bg_cache[f_state.bg_override]
+                elif is_bg_video and bg_video_reader is not None:
                     current_bg = bg_video_reader.read_frame()
                     if current_bg is None:
                         current_bg = static_bg_image
@@ -194,8 +221,14 @@ class NovelEngine:
                     is_speaking=f_state.is_speaking,
                     speaking_tick=f_state.speaking_tick,
                     frame_index=f_state.frame_index,
-                    prefix_asterisk=bool(f_state.visible_rich_chars)
+                    prefix_asterisk=bool(f_state.visible_rich_chars),
+                    show_textbox=f_state.show_textbox
                 )
+
+                if f_state.fade_alpha <= 0.0:
+                    frame_img = black_frame
+                elif f_state.fade_alpha < 1.0:
+                    frame_img = Image.blend(frame_img, black_frame, 1.0 - f_state.fade_alpha)
 
                 encoder.write_frame(frame_img)
 

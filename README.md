@@ -20,6 +20,7 @@ Supports both **Classic 8-bit Voice Blips (peep-peep text sounds)** and **Englis
   - `[wait: 0.8]`: Dramatic mid-sentence pauses.
   - `[se: sound_name]`: Trigger custom sound effects at exact word timings.
 - **Looping Video Backgrounds**: Seamlessly loops MP4 background footage behind the dialogue box.
+- **Splash Screens & Cinematic Transitions**: Full-screen opening/ending splash screens without dialogue boxes, featuring smooth black fade-in and fade-out transitions.
 - **Multi-Aspect Ratio**:
   - `16:9` (1920x1080): YouTube standard landscape video.
   - `9:16` (1080x1920): YouTube Shorts, TikTok, and Instagram Reels layout.
@@ -72,31 +73,46 @@ bg: "assets/bg/ruins_hall.jpg"      # Static image or looping MP4 video
 bgm: "assets/bgm/ruins_theme.wav"   # Background music
 bgm_volume: 0.5                     # 0.0 to 1.0
 
+# Optional Full-screen Splash Screens (no dialogue box)
+splash_start:
+  image: "assets/bg/title_mount_ebott.jpg"
+  duration: 2.5
+  fade_in: 0.5
+  fade_out: 0.5
+  transition: "fade_black"
+
+splash_end:
+  image: "assets/bg/ruins_hall.jpg"
+  duration: 2.0
+  fade_in: 0.5
+  fade_out: 0.5
+  transition: "fade_black"
+
 characters:
-  toriel:
-    name: "Toriel"
+  dev_girl_1:
+    name: "Emma"
     voice_mode: "tts"               # "tts" or "blip"
     tts:
       provider: "gtts"
       voice_id: "uk"                # British accent ("uk", "us", etc.)
     default_face: "smile"
     faces:
-      smile: "assets/char/toriel/smile.jpg"
+      smile: "assets/char/dev_girl_1/smile.jpg"
 
-  sans:
-    name: "sans"
+  dev_boy_1:
+    name: "Alex"
     voice_mode: "blip"
     voice: "assets/se/voice_low.wav" # 8-bit blip sound
-    default_face: "grin"
+    default_face: "smile"
     faces:
-      grin: "assets/char/sans/grin.jpg"
+      smile: "assets/char/dev_boy_1/smile.jpg"
 ---
 
 # Lines with speakers and facial expressions:
 
-* toriel(smile): Welcome, my child.[wait: 0.5] Always stay filled with [color: yellow]DETERMINATION[/color].
-* sans(grin): hey. don't look so [shake]rattled[/shake]. take a break with a slice of pie.
-* toriel(smile): Oh Sans...[wait: 0.4] Must you always tell those terrible puns?
+* dev_girl_1(smile): Welcome, traveler![wait: 0.5] Always stay filled with [color: yellow]DETERMINATION[/color].
+* dev_boy_1(smile): hey. don't look so [shake]rattled[/shake]. take a break and check your map.
+* dev_girl_1(smile): Good advice, Alex![wait: 0.4] Let us continue forward together.
 ```
 
 ### Inline Tag Reference
@@ -118,14 +134,16 @@ UT_novel/
 ├── assets/
 │   ├── bg/                  # Background images & videos
 │   ├── bgm/                 # Background music loops
-│   ├── char/                # Character portraits (Toriel, Sans)
+│   ├── char/                # Character portraits (dev_boy_1, dev_girl_1)
 │   ├── fonts/               # Pixel fonts (PixelOperator.ttf)
 │   └── se/                  # Voice blips and sound effects
 ├── examples/
 │   ├── dialogue_ruins.md    # Voice blip multi-dialogue sample
 │   ├── dialogue_tts.md      # Dual AI English TTS dialogue sample
 │   ├── dialogue_m5_rich.md  # Video background + Rich tags demo
-│   └── shorts_encounter.md  # 9:16 Vertical YouTube Shorts sample
+│   ├── shorts_encounter.md  # 9:16 Vertical YouTube Shorts sample
+│   ├── full_feature_blip_showcase.md          # 16:9 Full feature blip showcase
+│   └── full_feature_blip_showcase_vertical.md # 9:16 Shorts full feature blip showcase
 ├── src/ut_novel/
 │   ├── audio/               # Blip generator, TTS providers, BGM mixer
 │   ├── encoder/             # FFmpeg raw pipe encoder

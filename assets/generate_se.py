@@ -26,9 +26,25 @@ if __name__ == "__main__":
     out_dir = "assets/se"
     os.makedirs(out_dir, exist_ok=True)
     
-    # Default narrator blip (~440Hz square)
+    # Default narrator blip (~420Hz square)
     create_blip(os.path.join(out_dir, "voice_default.wav"), freq=420.0, duration=0.04, wave_type="square")
-    # Low blip (Sans-like ~150Hz)
+    # Low pitch blip (Male / dev_boy_1 ~160Hz)
     create_blip(os.path.join(out_dir, "voice_low.wav"), freq=160.0, duration=0.05, wave_type="square")
-    # High blip (Papyrus/Toriel ~580Hz)
+    # High pitch blip (Female / dev_girl_1 ~560Hz)
     create_blip(os.path.join(out_dir, "voice_high.wav"), freq=560.0, duration=0.035, wave_type="triangle")
+
+    # Retro sparkle / save chime
+    def create_chime(filename: str, sample_rate: int = 44100):
+        notes = [523.25, 659.25, 783.99, 1046.50]
+        note_dur = 0.08
+        audio_parts = []
+        for freq in notes:
+            t = np.linspace(0, note_dur, int(sample_rate * note_dur), endpoint=False)
+            wave = np.sin(2 * np.pi * freq * t) + 0.3 * np.sign(np.sin(2 * np.pi * freq * t))
+            env = np.exp(-t * 20)
+            audio_parts.append(wave * env * 0.35)
+        audio = np.concatenate(audio_parts)
+        sf.write(filename, audio.astype(np.float32), sample_rate)
+        print(f"Generated {filename}")
+
+    create_chime(os.path.join(out_dir, "save.wav"))

@@ -37,10 +37,10 @@ Linux（UT_novel）と Windows 11（GPUマシン）の間でやり取りする�
 ### リクエスト (Linux → Windows)
 ```json
 {
-  "text": "Welcome to the RUINS, my child.",
-  "speaker": "toriel",
-  "style_prompt": "warm, gentle, motherly voice, soft breathing, slow pace",
-  "reference_audio": "toriel_ref.wav",
+  "text": "Welcome to the ancient ruins, explorer.",
+  "speaker": "dev_girl_1",
+  "style_prompt": "warm, gentle, calm voice, soft breathing, slow pace",
+  "reference_audio": "dev_girl_ref.wav",
   "need_alignment": true
 }
 ```
@@ -91,8 +91,8 @@ flowchart TD
 ### Step 1: スポットテスト（単発リテイク）
 台本全体を動かさず、重要なセリフだけを単発でWindowsマシンにリクエストして試聴・微調整します。
 ```bash
-# 2行目のSansの台詞だけ、感情プロンプトを変えて別テイクを生成
-ut-novel voice test --line 2 --prompt "lazy, deep chuckle, sarcastic"
+# 2行目のDev Boyの台詞だけ、感情プロンプトを変えて別テイクを生成
+ut-novel voice test --line 2 --prompt "calm, deep chuckle, energetic"
 
 # その1行だけの音声＋タイピングを3秒のプレビュー動画で即時確認
 ut-novel preview --line 2
@@ -124,11 +124,11 @@ ut-novel render --script script.md -o output/final_movie.mp4
 scenarios/ruins_encounter/
 ├── script.md
 └── takes/
-    ├── line_001_toriel/
+    ├── line_001_girl/
     │   ├── take_1.wav (+ take_1.json)   # テイク1
     │   ├── take_2.wav (+ take_2.json)   # テイク2 (採用！★)
     │   └── selected.wav -> take_2.wav   # 確定テイク
-    └── line_002_sans/
+    └── line_002_boy/
         ├── take_1.wav (+ take_1.json)
         ├── take_2.wav (+ take_2.json)
         └── selected.wav -> take_2.wav

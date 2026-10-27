@@ -5,23 +5,23 @@ fps: 30
 bg: "assets/bg/ruins_hall.jpg"
 
 characters:
-  toriel:
-    name: "Toriel"
+  dev_girl_1:
+    name: "Emma"
     voice: "assets/se/voice_high.wav"
     default_face: "smile"
     faces:
-      smile: "assets/char/toriel/smile.jpg"
-  sans:
-    name: "sans"
+      smile: "assets/char/dev_girl_1/smile.jpg"
+  dev_boy_1:
+    name: "Alex"
     voice: "assets/se/voice_low.wav"
-    default_face: "grin"
+    default_face: "smile"
     faces:
-      grin: "assets/char/sans/grin.jpg"
+      smile: "assets/char/dev_boy_1/smile.jpg"
 ---
 
 # Dialogue sequence
 
-* toriel(smile): Ah, do not be afraid, my child. I am TORIEL, the caretaker of the RUINS.
-* sans(grin): hey there, lady. looks like you brought a new friend over for dinner.
-* toriel(smile): Sans! What are you doing all the way out here in the catacombs?
-* sans(grin): eh, just thought i'd pop by and drop a rib-tickling greeting.
+* dev_girl_1(smile): Welcome! Are you ready to explore the ancient ruins today?
+* dev_boy_1(smile): hey. already checked the equipment. everything looks ready to go.
+* dev_girl_1(smile): Wonderful. Let us stay cautious and proceed together!
+* dev_boy_1(smile): got it. stay sharp and watch your step.

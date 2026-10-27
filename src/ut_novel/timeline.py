@@ -1,8 +1,9 @@
 """Audio-driven timeline calculations supporting RichText tags, Voice Blips, and TTS."""
 from dataclasses import dataclass, field
 from typing import List, Tuple, Optional, Dict
+from ut_novel.models import SplashConfig
 from ut_novel.parser.script_parser import DialogueLine
-from ut_novel.parser.rich_text import RichChar
+from ut_novel.parser.rich_text import RichChar, RichTextParser
 
 @dataclass
 class SequenceFrameState:
@@ -15,6 +16,13 @@ class SequenceFrameState:
     is_typing: bool = False
     is_speaking: bool = False
     speaking_tick: int = 0
+    show_textbox: bool = True
+    fade_alpha: float = 1.0
+    bg_override: Optional[str] = None
+
+    @property
+    def visible_text(self) -> str:
+        return "".join(rc.char for rc in self.visible_rich_chars)
 
 @dataclass
 class AudioEvent:
@@ -32,12 +40,77 @@ class AudioDrivenTimeline:
     def build_timeline(
         self,
         dialogue_lines: List[DialogueLine],
-        line_audio_durations: Dict[int, float]
+        line_audio_durations: Dict[int, float],
+        splash_start: Optional[SplashConfig] = None,
+        splash_end: Optional[SplashConfig] = None
     ) -> Tuple[List[SequenceFrameState], List[AudioEvent], float]:
         frames: List[SequenceFrameState] = []
         audio_events: List[AudioEvent] = []
         
         current_frame = 0
+
+        def add_frame(
+            dialogue_idx: int = -1,
+            speaker: Optional[str] = None,
+            face: Optional[str] = None,
+            visible_chars: Optional[List[RichChar]] = None,
+            is_typing: bool = False,
+            is_speaking: bool = False,
+            speaking_tick: int = 0,
+            show_textbox: bool = True,
+            fade_alpha: float = 1.0,
+            bg_override: Optional[str] = None
+        ):
+            nonlocal current_frame
+            frames.append(SequenceFrameState(
+                frame_index=current_frame,
+                time_sec=current_frame / self.fps,
+                dialogue_index=dialogue_idx,
+                speaker=speaker,
+                face=face,
+                visible_rich_chars=list(visible_chars) if visible_chars else [],
+                is_typing=is_typing,
+                is_speaking=is_speaking,
+                speaking_tick=speaking_tick,
+                show_textbox=show_textbox,
+                fade_alpha=fade_alpha,
+                bg_override=bg_override
+            ))
+            current_frame += 1
+
+        # 1. Opening Splash Screen (splash_start)
+        if splash_start and splash_start.image:
+            total_splash_frames = max(1, int(splash_start.duration * self.fps))
+            if splash_start.transition == "fade_black":
+                fade_in_frames = int(splash_start.fade_in * self.fps)
+                fade_out_frames = int(splash_start.fade_out * self.fps)
+                hold_frames = max(0, total_splash_frames - fade_in_frames - fade_out_frames)
+
+                for i in range(fade_in_frames):
+                    alpha = (i + 1) / fade_in_frames if fade_in_frames > 0 else 1.0
+                    add_frame(show_textbox=False, fade_alpha=alpha, bg_override=splash_start.image)
+
+                for _ in range(hold_frames):
+                    add_frame(show_textbox=False, fade_alpha=1.0, bg_override=splash_start.image)
+
+                for i in range(fade_out_frames):
+                    alpha = max(0.0, 1.0 - (i + 1) / fade_out_frames) if fade_out_frames > 0 else 0.0
+                    add_frame(show_textbox=False, fade_alpha=alpha, bg_override=splash_start.image)
+
+                # Brief black pause before dialogue
+                black_pause_frames = int(self.fps * 0.25)
+                for _ in range(black_pause_frames):
+                    add_frame(show_textbox=False, fade_alpha=0.0)
+
+                # Dialogue scene fade-in (0.35s)
+                scene_fade_in_frames = int(self.fps * 0.35)
+                for i in range(scene_fade_in_frames):
+                    alpha = (i + 1) / scene_fade_in_frames
+                    add_frame(show_textbox=True, fade_alpha=alpha)
+            else:
+                for _ in range(total_splash_frames):
+                    add_frame(show_textbox=False, fade_alpha=1.0, bg_override=splash_start.image)
+
         punctuation_pause = {
             ',': int(self.fps * 0.15),
             ':': int(self.fps * 0.15),
@@ -187,6 +260,56 @@ class AudioDrivenTimeline:
                         speaking_tick=0
                     ))
                     current_frame += 1
+        # 3. Ending Splash Screen (splash_end)
+        if splash_end and splash_end.image:
+            total_splash_frames = max(1, int(splash_end.duration * self.fps))
+            if splash_end.transition == "fade_black":
+                # Dialogue scene fade-out (0.35s)
+                scene_fade_out_frames = int(self.fps * 0.35)
+                for i in range(scene_fade_out_frames):
+                    alpha = max(0.0, 1.0 - (i + 1) / scene_fade_out_frames)
+                    add_frame(show_textbox=True, fade_alpha=alpha)
+
+                # Brief black pause
+                black_pause_frames = int(self.fps * 0.25)
+                for _ in range(black_pause_frames):
+                    add_frame(show_textbox=False, fade_alpha=0.0)
+
+                # Fade in splash end
+                fade_in_frames = int(splash_end.fade_in * self.fps)
+                fade_out_frames = int(splash_end.fade_out * self.fps)
+                hold_frames = max(0, total_splash_frames - fade_in_frames - fade_out_frames)
+
+                for i in range(fade_in_frames):
+                    alpha = (i + 1) / fade_in_frames if fade_in_frames > 0 else 1.0
+                    add_frame(show_textbox=False, fade_alpha=alpha, bg_override=splash_end.image)
+
+                for _ in range(hold_frames):
+                    add_frame(show_textbox=False, fade_alpha=1.0, bg_override=splash_end.image)
+
+                for i in range(fade_out_frames):
+                    alpha = max(0.0, 1.0 - (i + 1) / fade_out_frames) if fade_out_frames > 0 else 0.0
+                    add_frame(show_textbox=False, fade_alpha=alpha, bg_override=splash_end.image)
+            else:
+                for _ in range(total_splash_frames):
+                    add_frame(show_textbox=False, fade_alpha=1.0, bg_override=splash_end.image)
 
         total_duration = current_frame / self.fps
         return frames, audio_events, total_duration
+
+class SimpleTimeline(AudioDrivenTimeline):
+    """Backward compatibility wrapper for early milestone scripts."""
+    def __init__(self, fps: int = 30, frames_per_char: int = 2, post_dialog_pause: float = 1.5):
+        super().__init__(fps=fps, default_frames_per_char=frames_per_char)
+        self.post_dialog_pause = post_dialog_pause
+
+    def build_timeline_for_text(self, text: str):
+        rich_chars = RichTextParser.parse(text)
+        line = DialogueLine(
+            raw_text=text,
+            plain_text=text,
+            rich_chars=rich_chars,
+            wrapped_rich_chars=rich_chars,
+            pause_after=self.post_dialog_pause
+        )
+        return self.build_timeline([line], {})
