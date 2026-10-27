@@ -26,6 +26,7 @@ class DialogueLine:
 @dataclass
 class ParsedScript:
     title: str = "Untitled"
+    template: str = "undertale_16_9"
     aspect_ratio: str = "16:9"
     fps: int = 30
     bg_path: Optional[str] = None
@@ -67,8 +68,20 @@ class ScriptParser:
         fps_val = meta.get("fps", 30)
         bgm_vol_val = meta.get("bgm_volume", 0.7)
 
+        # Resolve template (with fallback for legacy aspect_ratio)
+        template_val = meta.get("template")
+        if not template_val:
+            raw_ar = str(meta.get("aspect_ratio", "")).strip().replace(" ", "")
+            if raw_ar == "9:16":
+                template_val = "undertale_9_16"
+            else:
+                template_val = "undertale_16_9"
+        else:
+            template_val = str(template_val).strip()
+
         parsed = ParsedScript(
             title=str(meta.get("title", "Untitled")),
+            template=template_val,
             aspect_ratio=str(meta.get("aspect_ratio", "16:9")),
             fps=int(fps_val) if isinstance(fps_val, (int, str, float)) else 30,
             bg_path=str(bg_val) if bg_val else None,

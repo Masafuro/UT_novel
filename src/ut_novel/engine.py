@@ -1,13 +1,12 @@
-"""Core NovelEngine supporting Aspect Ratio Presets (16:9 and 9:16 Shorts), BGM Looping/Fadeout, and Video Backgrounds."""
+"""Core NovelEngine supporting Template-driven Layouts, BGM Looping/Fadeout, and Video Backgrounds."""
 import os
 from typing import Optional, Dict
 from PIL import Image
 from pydub import AudioSegment
 
-from ut_novel.models import DialogBoxConfig, CharacterConfig
+from ut_novel.models import CharacterConfig
 from ut_novel.parser.script_parser import ScriptParser, ParsedScript, DialogueLine
-from ut_novel.parser.word_wrap import WordWrapper
-from ut_novel.visual.textbox import DialogBoxRenderer
+from ut_novel.templates import TemplateRegistry, BaseTemplate
 from ut_novel.visual.bg_video import BackgroundVideoReader
 from ut_novel.audio.blip import BlipAudioGenerator
 from ut_novel.audio.tts import GTTSProvider, CustomAudioProvider, BaseTTSProvider
@@ -16,8 +15,7 @@ from ut_novel.timeline import AudioDrivenTimeline, SequenceFrameState
 from ut_novel.encoder.ffmpeg_pipe import FFmpegPipeEncoder
 
 class NovelEngine:
-    def __init__(self, default_config: Optional[DialogBoxConfig] = None):
-        self.default_config = default_config
+    def __init__(self):
         self.parser = ScriptParser()
         self.blip_generator = BlipAudioGenerator()
         
@@ -30,6 +28,7 @@ class NovelEngine:
         self,
         script_path: str,
         output_path: str,
+        override_template: Optional[str] = None,
         override_aspect_ratio: Optional[str] = None,
         override_fps: Optional[int] = None,
         preview_seconds: Optional[float] = None,
@@ -38,13 +37,19 @@ class NovelEngine:
         print(f"=== Rendering Script: {script_path} ===")
         parsed = self.parser.parse_file(script_path)
         
-        # Determine aspect ratio and layout configuration
-        aspect_ratio = override_aspect_ratio or parsed.aspect_ratio or "16:9"
-        cfg = DialogBoxConfig.get_preset(aspect_ratio)
-        renderer = DialogBoxRenderer(cfg)
+        # Determine template (with legacy aspect_ratio fallback support)
+        template_name = override_template or parsed.template
+        if override_aspect_ratio:
+            raw_ar = override_aspect_ratio.strip().replace(" ", "")
+            if raw_ar == "9:16":
+                template_name = "undertale_9_16"
+            elif raw_ar == "16:9":
+                template_name = "undertale_16_9"
+
+        template = TemplateRegistry.get(template_name)
         fps = override_fps or parsed.fps or 30
 
-        print(f"   Layout: {aspect_ratio} ({cfg.screen_width}x{cfg.screen_height}) @ {fps}fps")
+        print(f"   Template: {template.name} ({template.screen_width}x{template.screen_height}) @ {fps}fps")
 
         # 1. Preload character portrait images
         loaded_portraits: Dict[str, Image.Image] = {}
@@ -54,7 +59,7 @@ class NovelEngine:
                 if os.path.exists(face_path):
                     loaded_portraits[key] = Image.open(face_path).convert("RGBA")
 
-        # 2. Word wrapping calculation with RichChar
+        # 2. Word wrapping calculation using template's layout & font
         for line in parsed.lines:
             has_portrait = False
             if line.speaker and line.speaker in parsed.characters:
@@ -63,13 +68,18 @@ class NovelEngine:
                 if face and f"{line.speaker}:{face}" in loaded_portraits:
                     has_portrait = True
 
-            max_w = cfg.box_width - cfg.text_margin_x * 2
-            if has_portrait:
-                max_w -= (cfg.portrait_size + 40)
+            line.wrapped_rich_chars = template.wrap_text(line.rich_chars, has_portrait=has_portrait)
 
-            asterisk_w = int(renderer.font.getlength("* "))
-            wrapper = WordWrapper(renderer.font, max_width=max_w, asterisk_indent=asterisk_w)
-            line.wrapped_rich_chars = wrapper.wrap_rich_chars(line.rich_chars, prefix_asterisk=True)
+            # Apply template's default blip sound if not explicitly overridden
+            if line.voice_mode == "blip":
+                is_explicit_custom_blip = False
+                if line.speaker and line.speaker in parsed.characters:
+                    c_sound = parsed.characters[line.speaker].blip_sound
+                    if c_sound and c_sound != "assets/se/voice_default.wav":
+                        is_explicit_custom_blip = True
+
+                if not is_explicit_custom_blip:
+                    line.voice_sound = template.default_blip_sound
 
         # 3. Audio Synthesis (TTS Pre-generation)
         print("1. Synthesizing speech and calculating durations...")
@@ -142,13 +152,13 @@ class NovelEngine:
                 return None
             try:
                 raw = Image.open(path).convert("RGBA")
-                scale = max(cfg.screen_width / raw.width, cfg.screen_height / raw.height)
+                scale = max(template.screen_width / raw.width, template.screen_height / raw.height)
                 scaled_w = int(raw.width * scale)
                 scaled_h = int(raw.height * scale)
                 scaled_bg = raw.resize((scaled_w, scaled_h), Image.Resampling.BICUBIC)
-                crop_x = (scaled_w - cfg.screen_width) // 2
-                crop_y = (scaled_h - cfg.screen_height) // 2
-                return scaled_bg.crop((crop_x, crop_y, crop_x + cfg.screen_width, crop_y + cfg.screen_height))
+                crop_x = (scaled_w - template.screen_width) // 2
+                crop_y = (scaled_h - template.screen_height) // 2
+                return scaled_bg.crop((crop_x, crop_y, crop_x + template.screen_width, crop_y + template.screen_height))
             except Exception as e:
                 print(f"Warning: Failed to load background {path}: {e}")
                 return None
@@ -163,7 +173,7 @@ class NovelEngine:
             if img:
                 bg_cache[parsed.splash_end.image] = img
 
-        black_frame = Image.new("RGBA", (cfg.screen_width, cfg.screen_height), (0, 0, 0, 255))
+        black_frame = Image.new("RGBA", (template.screen_width, template.screen_height), (0, 0, 0, 255))
 
         is_bg_video = False
         bg_video_reader: Optional[BackgroundVideoReader] = None
@@ -176,8 +186,8 @@ class NovelEngine:
                 print(f"   Using background video: {parsed.bg_path}")
                 bg_video_reader = BackgroundVideoReader(
                     video_path=parsed.bg_path,
-                    width=cfg.screen_width,
-                    height=cfg.screen_height,
+                    width=template.screen_width,
+                    height=template.screen_height,
                     fps=fps
                 )
                 bg_video_reader.start()
@@ -191,8 +201,8 @@ class NovelEngine:
         print(f"4. Rendering frames & encoding to {output_path}...")
         encoder = FFmpegPipeEncoder(
             output_path=output_path,
-            width=cfg.screen_width,
-            height=cfg.screen_height,
+            width=template.screen_width,
+            height=template.screen_height,
             fps=fps,
             audio_path=temp_audio
         )
@@ -214,14 +224,14 @@ class NovelEngine:
                     portrait_key = f"{f_state.speaker}:{f_state.face}"
                     portrait_img = loaded_portraits.get(portrait_key)
 
-                frame_img = renderer.render_rich_frame(
+                frame_img = template.render_frame(
                     base_image=current_bg,
                     visible_rich_chars=f_state.visible_rich_chars,
+                    speaker_name=f_state.speaker,
                     portrait_image=portrait_img,
                     is_speaking=f_state.is_speaking,
                     speaking_tick=f_state.speaking_tick,
                     frame_index=f_state.frame_index,
-                    prefix_asterisk=bool(f_state.visible_rich_chars),
                     show_textbox=f_state.show_textbox
                 )
 

@@ -1,18 +1,20 @@
 # UT_novel 💬🎬
 
-An **Undertale-style dialogue and background video generator** that renders high-definition dialogue videos (1080p MP4) directly from **Markdown script files**.
+A **Multi-Template Dialogue & Background Video Generator** that renders high-definition dialogue videos (1080p MP4) directly from **Markdown script files**.
 
-Supports both **Classic 8-bit Voice Blips (peep-peep text sounds)** and **English AI Text-To-Speech (TTS)** with automatic lip-sync, word wrapping, inline emotion tags, looping background videos, and multi-aspect ratio layouts (16:9 Landscape & 9:16 Vertical Shorts/TikTok).
+Supports **Undertale 8-bit retro aesthetic** and **R4 (Ridge Racer Type 4) cinematic briefing HUD**, dual voice modes (Classic 8-bit Voice Blips & English AI TTS with automatic lip-sync), word wrapping, inline emotion tags, looping background videos, and dedicated 16:9 Landscape & 9:16 Vertical (Shorts/TikTok) layouts.
 
 ---
 
 ## ✨ Features
 
 - **Markdown-Driven Video Generation**: Write simple, intuitive Markdown scripts to produce ready-to-publish MP4 videos.
-- **Undertale Aesthetic**: Authentic pixel-bordered dialogue box, pixel fonts (PixelOperator/Determination), and retro character portraits.
+- **Multi-Template Architecture**:
+  - **`undertale_16_9` / `undertale_9_16`**: Authentic Undertale pixel-bordered dialogue box, pixel fonts (PixelOperator), and retro character portraits.
+  - **`r4_16_9` / `r4_9_16`**: Ridge Racer Type 4 inspired dark semi-transparent slit window, vibrant R4 racing yellow accents, modern sans-serif typography, and tactical HUD header bars.
 - **Dual Voice Modes**:
-  - `blip`: Classic Undertale text sounds (letters trigger blips, spaces are silent, punctuation pauses).
-  - `tts`: English AI speech synthesis with **automatic audio-driven typing speed & lip-sync** (Bobbing animation while speaking, neutral when silent).
+  - `blip`: Character text sounds (Retro 8-bit blips for Undertale, crisp cyber click SE for R4).
+  - `tts`: English AI speech synthesis with **automatic audio-driven typing speed & lip-sync** (Bobbing animation or HUD focus while speaking).
 - **English Word Wrapping**: Intelligently breaks lines at word boundaries so text never gets awkwardly split mid-word.
 - **Inline Special Effect Tags**:
   - `[shake]...[/shake]`: Shaking text effect on specific words.
@@ -21,10 +23,27 @@ Supports both **Classic 8-bit Voice Blips (peep-peep text sounds)** and **Englis
   - `[se: sound_name]`: Trigger custom sound effects at exact word timings.
 - **Looping Video Backgrounds**: Seamlessly loops MP4 background footage behind the dialogue box.
 - **Splash Screens & Cinematic Transitions**: Full-screen opening/ending splash screens without dialogue boxes, featuring smooth black fade-in and fade-out transitions.
-- **Multi-Aspect Ratio**:
+- **Multi-Aspect Ratio Dedicated Templates**:
   - `16:9` (1920x1080): YouTube standard landscape video.
-  - `9:16` (1080x1920): YouTube Shorts, TikTok, and Instagram Reels layout.
+  - `9:16` (1080x1920): YouTube Shorts, TikTok, and Instagram Reels layout with mobile UI safety padding.
 - **Background Music (BGM)**: Automatic looping and smooth fade-out at the end of the video.
+
+---
+
+## 🎨 Available Templates
+
+You can list all registered templates with:
+
+```bash
+python3 -m ut_novel.cli templates
+```
+
+| Template ID | Resolution | Style & UI Layout | Typography & Prefix | Sound Effect (Blip) |
+| :--- | :--- | :--- | :--- | :--- |
+| **`undertale_16_9`** | 1920×1080 | Bottom-centered pixel double-border box | PixelOperator (56pt), `* ` | Retro 8-bit Voice Blip |
+| **`undertale_9_16`** | 1080×1920 | Square-proportioned pixel box (bottom 280px safe margin) | PixelOperator (46pt), `* ` | Retro 8-bit Voice Blip |
+| **`r4_16_9`** | 1920×1080 | Authentic 4-layer R4 meeting screen (Yellow mat frame + inner white viewport + central thick-bordered portrait + `*Message` tab box) | Modern Sans Bold (42pt), Clean | Tight Cyber UI Click |
+| **`r4_9_16`** | 1080×1920 | Authentic 4-layer R4 meeting screen for vertical Shorts (safe-area margins avoiding mobile controls) | Modern Sans Bold (38pt), Clean | Tight Cyber UI Click |
 
 ---
 
@@ -41,19 +60,28 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-### 2. Basic Command
+### 2. Basic Commands
 
 Render a Markdown dialogue script to MP4:
 
 ```bash
-# Standard 16:9 Landscape
-python3 -m ut_novel.cli render --script examples/dialogue_ruins.md -o output/video.mp4
+# 1. Undertale 16:9 Landscape
+python3 -m ut_novel.cli render --script examples/dialogue_ruins.md -o output/ruins.mp4
 
-# Vertical 9:16 (YouTube Shorts / TikTok)
+# 2. Undertale 9:16 Vertical Shorts
 python3 -m ut_novel.cli render --script examples/shorts_encounter.md -o output/shorts.mp4
 
-# Fast preview mode (render only the first 5 seconds)
-python3 -m ut_novel.cli render --script examples/shorts_encounter.md -o output/preview.mp4 --preview-sec 5.0
+# 3. R4 (Ridge Racer Type 4) 16:9 Landscape Briefing
+python3 -m ut_novel.cli render --script examples/r4_briefing_16_9.md -o output/r4_16_9.mp4
+
+# 4. R4 (Ridge Racer Type 4) 9:16 Vertical Shorts Briefing
+python3 -m ut_novel.cli render --script examples/r4_briefing_9_16.md -o output/r4_9_16.mp4
+
+# Override template from command line
+python3 -m ut_novel.cli render --script examples/dialogue_ruins.md -o output/override.mp4 --template r4_16_9
+
+# Fast preview mode (render only the first 3 seconds)
+python3 -m ut_novel.cli render --script examples/r4_briefing_16_9.md -o output/preview.mp4 --preview-sec 3.0
 ```
 
 ---
@@ -62,57 +90,29 @@ python3 -m ut_novel.cli render --script examples/shorts_encounter.md -o output/p
 
 A `.md` script file consists of YAML Frontmatter followed by dialogue lines.
 
-### Example: `script.md`
+### Example: `r4_briefing_16_9.md`
 
 ```markdown
 ---
-title: "Underground Encounter"
-aspect_ratio: "16:9"       # "16:9" or "9:16" (Shorts)
+title: "PAC Racing Club - Stage 01 Briefing"
+template: "r4_16_9"                 # "r4_16_9", "r4_9_16", "undertale_16_9", "undertale_9_16"
 fps: 30
-bg: "assets/bg/ruins_hall.jpg"      # Static image or looping MP4 video
+bg: "assets/bg/r4_paddock_night.jpg"# Static image or looping MP4 video
 bgm: "assets/bgm/ruins_theme.wav"   # Background music
-bgm_volume: 0.5                     # 0.0 to 1.0
-
-# Optional Full-screen Splash Screens (no dialogue box)
-splash_start:
-  image: "assets/bg/title_mount_ebott.jpg"
-  duration: 2.5
-  fade_in: 0.5
-  fade_out: 0.5
-  transition: "fade_black"
-
-splash_end:
-  image: "assets/bg/ruins_hall.jpg"
-  duration: 2.0
-  fade_in: 0.5
-  fade_out: 0.5
-  transition: "fade_black"
+bgm_volume: 0.4                     # 0.0 to 1.0
 
 characters:
-  dev_girl_1:
+  emma:
     name: "Emma"
-    voice_mode: "tts"               # "tts" or "blip"
-    tts:
-      provider: "gtts"
-      voice_id: "uk"                # British accent ("uk", "us", etc.)
-    default_face: "smile"
-    faces:
-      smile: "assets/char/dev_girl_1/smile.jpg"
-
-  dev_boy_1:
-    name: "Alex"
     voice_mode: "blip"
-    voice: "assets/se/voice_low.wav" # 8-bit blip sound
     default_face: "smile"
     faces:
-      smile: "assets/char/dev_boy_1/smile.jpg"
+      smile: "assets/char/dev_girl_1/r4_smile.png"
 ---
 
-# Lines with speakers and facial expressions:
-
-* dev_girl_1(smile): Welcome, traveler![wait: 0.5] Always stay filled with [color: yellow]DETERMINATION[/color].
-* dev_boy_1(smile): hey. don't look so [shake]rattled[/shake]. take a break and check your map.
-* dev_girl_1(smile): Good advice, Alex![wait: 0.4] Let us continue forward together.
+* emma(smile): Listen up, ace.[wait: 0.4] Track temperature is dropping fast tonight.
+* emma(smile): Keep your focus sharp and [color: yellow]warm up the tires[/color] on the formation lap.
+* emma(smile): The crew tuned your machine to perfection.[wait: 0.4] Bring us the [shake]VICTORY[/shake]!
 ```
 
 ### Inline Tag Reference
@@ -132,25 +132,28 @@ characters:
 ```text
 UT_novel/
 ├── assets/
-│   ├── bg/                  # Background images & videos
+│   ├── bg/                  # Background images & videos (ruins, r4_paddock, etc.)
 │   ├── bgm/                 # Background music loops
-│   ├── char/                # Character portraits (dev_boy_1, dev_girl_1)
-│   ├── fonts/               # Pixel fonts (PixelOperator.ttf)
-│   └── se/                  # Voice blips and sound effects
+│   ├── char/                # Character portraits (dev_boy_1, dev_girl_1, r4_commander)
+│   ├── fonts/               # Pixel fonts (PixelOperator.ttf) & Modern fonts (ModernSans-Bold.ttf)
+│   └── se/                  # Voice blips (voice_default.wav) & R4 click (r4_click.wav)
 ├── examples/
-│   ├── dialogue_ruins.md    # Voice blip multi-dialogue sample
-│   ├── dialogue_tts.md      # Dual AI English TTS dialogue sample
-│   ├── dialogue_m5_rich.md  # Video background + Rich tags demo
-│   ├── shorts_encounter.md  # 9:16 Vertical YouTube Shorts sample
-│   ├── full_feature_blip_showcase.md          # 16:9 Full feature blip showcase
-│   └── full_feature_blip_showcase_vertical.md # 9:16 Shorts full feature blip showcase
+│   ├── dialogue_ruins.md    # Undertale 16:9 sample
+│   ├── shorts_encounter.md  # Undertale 9:16 Shorts sample
+│   ├── r4_briefing_16_9.md  # R4 16:9 Landscape briefing
+│   └── r4_briefing_9_16.md  # R4 9:16 Vertical Shorts briefing
 ├── src/ut_novel/
+│   ├── templates/           # ★ Multi-template Architecture
+│   │   ├── base.py          # BaseTemplate abstract class
+│   │   ├── registry.py      # TemplateRegistry
+│   │   ├── undertale_16_9.py# Undertale 16:9 implementation
+│   │   ├── undertale_9_16.py# Undertale 9:16 implementation
+│   │   ├── r4_16_9.py       # R4 16:9 implementation
+│   │   └── r4_9_16.py       # R4 9:16 implementation
 │   ├── audio/               # Blip generator, TTS providers, BGM mixer
 │   ├── encoder/             # FFmpeg raw pipe encoder
 │   ├── parser/              # Frontmatter, RichText, WordWrapping
-│   ├── visual/              # Dialog box renderer, BG video looper
-│   ├── engine.py            # Unified NovelEngine pipeline
-│   ├── models.py            # Configurations & Aspect Ratio presets
+│   ├── engine.py            # Clean Template-driven NovelEngine pipeline
 │   └── cli.py               # CLI command interface
 └── memo/PLAN/               # Complete project plan & milestones
 ```

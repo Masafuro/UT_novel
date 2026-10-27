@@ -34,3 +34,11 @@ Undertaleスタイルの対話（ダイアログ）と背景動画を、**Markdo
    - **著作権準拠キャラクター素材移行計画**
    - 既存のUndertale素材（sans, toriel）の完全排除、オリジナル1-bitキャラクター（dev_boy_1, dev_girl_1）への統一、台本・ドキュメント・作例コードの刷新ステップ
 
+7. **[07_theme_engine_and_r4_mode_plan.md](file:///home/ubuntu/AgentWorkspace/UT_novel/memo/PLAN/07_theme_engine_and_r4_mode_plan.md)**
+   - **テンプレートエンジン基盤 & R4モード開発計画**
+   - 台本とテンプレートの完全分離、自己完結型4テンプレート（undertale/r4 × 16:9/9:16）、疎結合アーキテクチャの基本設計
+
+8. **[08_template_and_r4_milestones.md](file:///home/ubuntu/AgentWorkspace/UT_novel/memo/PLAN/08_template_and_r4_milestones.md)**
+   - **テンプレートエンジン基盤 & R4モード 開発マイルストーン計画 (T-M1 〜 T-M5)**
+   - テンプレート基盤構築からUndertale移行、R4横型・縦型実装、CLI連携・検証までの詳細DoDと検証手順
+
